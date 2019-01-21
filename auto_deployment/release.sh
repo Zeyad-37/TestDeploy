@@ -85,8 +85,11 @@ current_version=$(git describe --tags $(git rev-list --tags --max-count=1))
 
 echo Current version ${current_version}
 
-echo "Enter 1 for major, 2 for minor or 3 for patch bump"
-read bumpLocation
+bumpLocation=$1
+if [[ -z "$1" ]]
+then
+    bumpLocation=2
+fi
 
 # Bump released version
 next_version=$(increment_version ${current_version} ${bumpLocation})
