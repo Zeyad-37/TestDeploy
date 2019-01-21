@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
+format_to_gradle() {
+    version=(${1})
+    delimiter=", "
+    temp="${version/./$delimiter}"
+
+    result="${temp/./$delimiter}"
+    echo ${result}
+
+    return 0
+}
+
 # ensure you are on latest develop & master
 git checkout master
 git pull origin master
@@ -54,14 +65,3 @@ echo "Deleted ${branchPrefix} branch '${branchName}'"
 git push origin develop && git push origin master --tags
 echo "Pushed develop, master and tag to origin"
 
-
-format_to_gradle() {
-    version=(${1})
-    delimiter=", "
-    temp="${version/./$delimiter}"
-
-    result="${temp/./$delimiter}"
-    echo ${result}
-
-    return 0
-}
