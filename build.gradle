@@ -31,5 +31,5 @@ task autoRelease(type:Exec) {
 }
 
 task autoHotfix(type:Exec) {
-    commandLine "./auto_deployment/release.sh 3"
+    commandLine "./auto_deployment/release.sh", 3
 }
