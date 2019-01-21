@@ -83,7 +83,7 @@ echo "Got latest of develop and master"
 # Read Version -
 VERSION=$(git describe --tags $(git rev-list --tags --max-count=1))
 
-echo "Current version ${VERSION}"
+echo Current version ${VERSION}
 
 echo "Enter 1 for major, 2 for minor or 3 for patch bump"
 read bumpLocation
