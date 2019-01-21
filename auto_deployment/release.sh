@@ -115,7 +115,7 @@ echo newGradleVersion= ${newGradleVersion}
 sed -i '' -e "s/${oldGradleVersion}/${newGradleVersion}/g" ./app/build.gradle
 
 # Commit
-git add ../app/build.gradle
+git add app/build.gradle
 
 read -p "Press [Enter] to continue..."
 
