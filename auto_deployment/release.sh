@@ -129,5 +129,7 @@ echo "Merged to master and develop and created tag"
 git branch -d ${branchName}
 echo "Deleted ${branchPrefix} branch '${branchName}'"
 # Push develop, master and tag to origin
-git push origin develop && git push origin master --tags
+git push origin develop
+git push origin master
+git push origin ${NEXTVERSION}
 echo "Pushed develop, master and tag to origin"
