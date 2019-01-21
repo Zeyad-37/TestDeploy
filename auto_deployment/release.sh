@@ -17,8 +17,7 @@ git pull origin develop
 echo "Got latest of develop and master"
 
 # Read Version -
-VERSION=$1
-VERSION= git describe --tags $(git rev-list --tags --max-count=1)
+VERSION=$(git describe --tags $(git rev-list --tags --max-count=1))
 
 echo "Current version ${VERSION}"
 
