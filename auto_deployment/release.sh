@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 
-format_to_gradle() {
+function format_to_gradle {
     version=(${1})
     delimiter=", "
     temp="${version/./$delimiter}"
 
     result="${temp/./$delimiter}"
     echo ${result}
-
-    return 0
 }
 
 # ensure you are on latest develop & master
@@ -39,12 +37,18 @@ fi
 
 branchName=${branchPrefix}/${NEXTVERSION}
 
+echo branchName= ${branchName}
+
 git checkout -b ${branchName} develop
 echo "Created ${branchPrefix} branch '${branchName}'"
 
 # Bump in gradle file
 oldGradleVersion=$(format_to_gradle ${VERSION})
 newGradleVersion=$(format_to_gradle ${NEXTVERSION})
+
+echo oldGradleVersion= ${oldGradleVersion}
+echo newGradleVersion= ${newGradleVersion}
+
 sed -i '' -e "s/${oldGradleVersion}/${newGradleVersion}/g" ./app/build.gradle
 
 # Commit
