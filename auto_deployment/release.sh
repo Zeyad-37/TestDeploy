@@ -131,4 +131,3 @@ echo "Deleted ${branchPrefix} branch '${branchName}'"
 # Push develop, master and tag to origin
 git push origin develop && git push origin master --tags
 echo "Pushed develop, master and tag to origin"
-
