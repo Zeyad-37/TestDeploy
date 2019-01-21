@@ -1,5 +1,15 @@
 apply plugin: 'com.android.application'
 
+
+def (Integer courierVersionCode, String courierVersionName) = codeAndName(1, 0, 0)
+
+def codeAndName(major, minor, patch) {
+    def versionCode = major * 10000 + minor * 1000 + patch * 10
+    def versionName = "${major}.${minor}.${patch}"
+    return new Tuple2<Integer, String>(versionCode, versionName)
+}
+
+
 android {
     compileSdkVersion 28
     defaultConfig {
