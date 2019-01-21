@@ -25,3 +25,8 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+task autoRelease(type:Exec) {
+    commandLine "./auto_deployment/release.sh"
+}
+
