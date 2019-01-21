@@ -81,16 +81,16 @@ git pull origin develop
 echo "Got latest of develop and master"
 
 # Read Version -
-VERSION=$(git describe --tags $(git rev-list --tags --max-count=1))
+current_version=$(git describe --tags $(git rev-list --tags --max-count=1))
 
-echo Current version ${VERSION}
+echo Current version ${current_version}
 
 echo "Enter 1 for major, 2 for minor or 3 for patch bump"
 read bumpLocation
 
 # Bump released version
-NEXTVERSION=$(increment_version ${VERSION} ${bumpLocation})
-echo "Releasing new version ${NEXTVERSION}"
+next_version=$(increment_version ${current_version} ${bumpLocation})
+echo "Releasing new version ${next_version}"
 
 branchPrefix='release'
 # Start Release
@@ -98,7 +98,7 @@ if [[ "$bumpLocation" == "3" ]]; then
     branchPrefix='hotfix'
 fi
 
-branchName=${branchPrefix}/${NEXTVERSION}
+branchName=${branchPrefix}/${next_version}
 
 echo branchName= ${branchName}
 
@@ -106,8 +106,8 @@ git checkout -b ${branchName} develop
 echo "Created ${branchPrefix} branch '${branchName}'"
 
 # Bump in gradle file
-oldGradleVersion=$(format_to_gradle ${VERSION})
-newGradleVersion=$(format_to_gradle ${NEXTVERSION})
+oldGradleVersion=$(format_to_gradle ${current_version})
+newGradleVersion=$(format_to_gradle ${next_version})
 
 echo oldGradleVersion= ${oldGradleVersion}
 echo newGradleVersion= ${newGradleVersion}
@@ -116,16 +116,13 @@ sed -i '' -e "s/${oldGradleVersion}/${newGradleVersion}/g" ./app/build.gradle
 
 # Commit
 git add app/build.gradle
-
-read -p "Press [Enter] to continue..."
-
-git commit -m "Bumps version to ${NEXTVERSION}"
-echo "Bumped version in app build.gradle file to ${NEXTVERSION}"
+git commit -m "Bumps version to ${next_version}"
+echo "Bumped version in app build.gradle file to ${next_version}"
 
 # Merge to master and develop
 git checkout master
 git merge --no-ff ${branchName}
-git tag -a ${NEXTVERSION} -m "${NEXTVERSION}"
+git tag -a ${next_version} -m "${next_version}"
 git checkout develop
 git merge --no-ff ${branchName}
 echo "Merged to master and develop and created tag"
@@ -135,5 +132,5 @@ echo "Deleted ${branchPrefix} branch '${branchName}'"
 # Push develop, master and tag to origin
 git push origin develop
 git push origin master
-git push origin ${NEXTVERSION}
+git push origin ${next_version}
 echo "Pushed develop, master and tag to origin"
