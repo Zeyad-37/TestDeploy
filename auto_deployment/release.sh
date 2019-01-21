@@ -121,7 +121,7 @@ echo "Bumped version in app build.gradle file to ${NEXTVERSION}"
 # Merge to master and develop
 git checkout master
 git merge --no-ff ${branchName}
-git tag -a ${NEXTVERSION}
+git tag -a ${NEXTVERSION} -m "${NEXTVERSION}"
 git checkout develop
 git merge --no-ff ${branchName}
 echo "Merged to master and develop and created tag"
