@@ -115,6 +115,7 @@ echo newGradleVersion= ${newGradleVersion}
 sed -i '' -e "s/${oldGradleVersion}/${newGradleVersion}/g" ./app/build.gradle
 
 # Commit
+git add ./app/build.gradle
 git commit -m "Bumps version to ${NEXTVERSION}"
 echo "Bumped version in app build.gradle file to ${NEXTVERSION}"
 
