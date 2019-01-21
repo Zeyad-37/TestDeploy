@@ -96,16 +96,18 @@ next_version=$(increment_version ${current_version} ${bumpLocation})
 echo "Releasing new version ${next_version}"
 
 branchPrefix='release'
+sourceBranch='develop'
 # Start Release
 if [[ "$bumpLocation" == "3" ]]; then
     branchPrefix='hotfix'
+    sourceBranch='master'
 fi
 
 branchName=${branchPrefix}/${next_version}
 
 echo branchName= ${branchName}
 
-git checkout -b ${branchName} develop
+git checkout -b ${branchName} ${sourceBranch}
 echo "Created ${branchPrefix} branch '${branchName}'"
 
 # Bump in gradle file
