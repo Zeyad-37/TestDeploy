@@ -112,7 +112,7 @@ newGradleVersion=$(format_to_gradle ${NEXTVERSION})
 echo oldGradleVersion= ${oldGradleVersion}
 echo newGradleVersion= ${newGradleVersion}
 
-sed -i '' -e "s/${oldGradleVersion}/${newGradleVersion}/g" ../app/build.gradle
+sed -i '' -e "s/${oldGradleVersion}/${newGradleVersion}/g" ./app/build.gradle
 
 # Commit
 git add ../app/build.gradle
