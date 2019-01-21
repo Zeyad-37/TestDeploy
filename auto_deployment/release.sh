@@ -25,7 +25,7 @@ echo "Enter 1 for major, 2 for minor or 3 for patch bump"
 read bumpLocation
 
 # Bump released version
-NEXTVERSION=`./increment-version.sh ${VERSION} ${bumpLocation}`
+NEXTVERSION=`./auto_deploymentq/increment-version.sh ${VERSION} ${bumpLocation}`
 echo "Releasing new version ${NEXTVERSION}"
 
 branchPrefix='release'
