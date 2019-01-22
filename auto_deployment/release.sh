@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 function format_to_gradle {
-    version=(${1})
-    delimiter=", "
-    temp="${version/./$delimiter}"
+    local version=(${1})
+    local delimiter=", "
+    local temp="${version/./$delimiter}"
 
-    result="${temp/./$delimiter}"
+    local result="${temp/./$delimiter}"
     echo ${result}
 }
 
