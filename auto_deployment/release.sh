@@ -8,11 +8,11 @@ function gh_create_release {
     API_JSON="{\"tag_name\": \"$tag_name\",
                 \"target_commitish\": \"master\",
                 \"name\": \"$tag_name\",
-                \"body\": \"$body\",
+                \"body\": "'"${body//$'\n'/'\n'}"'",
                 \"draft\": false,
                 \"prerelease\": false
               }"
-
+    echo ${API_JSON}
     curl --data "$API_JSON" https://api.github.com/repos/Zeyad-37/TestDeploy/releases?access_token=${githubAPIToken}
 }
 
