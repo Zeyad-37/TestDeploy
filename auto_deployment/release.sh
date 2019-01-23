@@ -12,8 +12,8 @@ function gh_create_release {
                 \"draft\": false,
                 \"prerelease\": false
               }"
-
-    curl --data "$API_JSON" https://api.github.com/repos/Zeyad-37/TestDeploy/releases?access_token=${githubAPIToken}
+    echo ${API_JSON}
+    curl --data-binary "$API_JSON" https://api.github.com/repos/Zeyad-37/TestDeploy/releases?access_token=${githubAPIToken}
 }
 
 function gh_release {
