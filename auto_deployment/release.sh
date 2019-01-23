@@ -3,12 +3,14 @@
 function gh_create_release {
     tag_name=$1
     body=$2
+    jbody= "${body//$'\n'/\n}"
+#    jbody= "'"${body//$'\n'/'\n'}"'"
     githubAPIToken=$3
-
+    echo ${jbody}
     API_JSON="{\"tag_name\": \"$tag_name\",
                 \"target_commitish\": \"master\",
                 \"name\": \"$tag_name\",
-                \"body\": "'"${body//$'\n'/'\n'}"'",
+                \"body\": \"$jbody\",
                 \"draft\": false,
                 \"prerelease\": false
               }"
