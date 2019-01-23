@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function gh_create_release() {
+function gh_create_release {
     tag_name=$1
     body=$2
     githubAPIToken=$3
