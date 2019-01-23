@@ -196,10 +196,10 @@ echo "Pushed develop, master and tag to origin"
 
 # Make Release for Github
 releaseNotes="Testing this shit"
-gh_create_release ${current_version} ${releaseNotes} $3
+gh_create_release ${current_version} ${releaseNotes} $2
 
 # Upload Release asset
 file=$(find app/build/outputs/apk/release -name '*.apk' -print0 |
             xargs -0 ls -1 -t |
             head -1)
-gh_release ${next_version} ${file} $3
+gh_release ${next_version} ${file} $2
