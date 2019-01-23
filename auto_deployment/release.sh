@@ -1,5 +1,56 @@
 #!/usr/bin/env bash
 
+function gh_create_release() {
+    tag_name=$1
+    body=$2
+
+    API_JSON="{\"tag_name\": \"$tag_name\",
+                \"target_commitish\": \"master\",
+                \"name\": \"$tag_name\",
+                \"body\": \"$body\",
+                \"draft\": false,
+                \"prerelease\": false
+              }"
+
+    curl --data "$API_JSON" https://api.github.com/repos/Glovo/glovo-courier-android/releases?access_token=${githubAPIToken}
+}
+
+function gh_release {
+    local next_version=$1
+    local filename=$2
+    # Script to upload a release asset using the GitHub API v3.
+    # Define variables.
+    local githubAPIToken="32b9bcad8a5dd901a7c54cb038baefbafa929d21"
+    local GH_API="https://api.github.com"
+    local GH_REPO="$GH_API/repos/Glovo/glovo-courier-android"
+    local GH_TAGS="$GH_REPO/releases/tags/${next_version}"
+    local AUTH="Authorization: token $githubAPIToken"
+#    local WGET_ARGS="--content-disposition --auth-no-challenge --no-cookie"
+    local CURL_ARGS="-LJO#"
+
+    if [[ "${next_version}" == 'LATEST' ]]; then
+      GH_TAGS="$GH_REPO/releases/latest"
+    fi
+
+    # Validate token.
+    curl -o /dev/null -sH "$AUTH" ${GH_REPO} || { echo "Error: Invalid repo, token or network issue!";  exit 1; }
+
+    # Read asset tags.
+    response=$(curl -sH "$AUTH" ${GH_TAGS})
+
+    # Get ID of the asset based on given filename.
+    eval $(echo "$response" | grep -m 1 "id.:" | grep -w id | tr : = | tr -cd '[[:alnum:]]=')
+    [[ "$id" ]] || { echo "Error: Failed to get release id for tag: ${next_version}"; echo "$response" | awk 'length($0)<100' >&2; exit 1; }
+
+    # Upload asset
+    echo "Uploading asset... "
+
+    # Construct url
+    GH_ASSET="https://uploads.github.com/repos/Glovo/glovo-courier-android/releases/$id/assets?name=$(basename ${filename})"
+
+    curl --data-binary @"$filename" -H "Authorization: token $githubAPIToken" -H "Content-Type: application/octet-stream" ${GH_ASSET}
+}
+
 function format_to_gradle {
     local version=(${1})
     local delimiter=", "
@@ -139,3 +190,16 @@ git push origin develop
 git push origin master
 git push origin ${next_version}
 echo "Pushed develop, master and tag to origin"
+
+# Build APK
+./gradlew assembleRelease
+
+# Make Release for Github
+releaseNotes="Testing this shit"
+gh_create_release ${current_version} ${releaseNotes}
+
+# Upload Release asset
+file=$(find app/build/outputs/apk/release -name '*.apk' -print0 |
+            xargs -0 ls -1 -t |
+            head -1)
+gh_release ${next_version} ${file}
