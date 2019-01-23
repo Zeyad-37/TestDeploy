@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 
-def (Integer courierVersionCode, String courierVersionName) = codeAndName(1, 10, 0)
+def (Integer courierVersionCode, String courierVersionName) = codeAndName(1, 11, 0)
 
 def codeAndName(major, minor, patch) {
     def versionCode = major * 10000 + minor * 1000 + patch * 10
