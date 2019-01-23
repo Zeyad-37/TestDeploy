@@ -3,7 +3,7 @@
 function gh_create_release() {
     tag_name=$1
     body=$2
-
+    githubAPIToken="32b9bcad8a5dd901a7c54cb038baefbafa929d21"
     API_JSON="{\"tag_name\": \"$tag_name\",
                 \"target_commitish\": \"master\",
                 \"name\": \"$tag_name\",
