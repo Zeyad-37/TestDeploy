@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-githubAPIToken="32b9bcad8a5dd901a7c54cb038baefbafa929d21"
+githubAPIToken="29a1b2fb32f1208aa9790e21fe51c059467f32c6"
 
 function gh_create_release() {
     tag_name=$1
@@ -51,3 +51,13 @@ function gh_upload_release_asset {
 
     curl --data-binary @"$filename" -H "Authorization: token $githubAPIToken" -H "Content-Type: application/octet-stream" ${GH_ASSET}
 }
+
+current_version=$(git describe --tags $(git rev-list --tags --max-count=1))
+current_version=1.14.0
+releaseNotes="Testing this shit"
+file=$(find app/build/outputs/apk/release -name '*.apk' -print0 |
+            xargs -0 ls -1 -t |
+            head -1)
+
+gh_create_release ${current_version} ${releaseNotes}
+gh_upload_release_asset ${current_version} ${file}

@@ -3,7 +3,7 @@
 function gh_create_release() {
     tag_name=$1
     body=$2
-    githubAPIToken="32b9bcad8a5dd901a7c54cb038baefbafa929d21"
+    githubAPIToken="29a1b2fb32f1208aa9790e21fe51c059467f32c6"
     API_JSON="{\"tag_name\": \"$tag_name\",
                 \"target_commitish\": \"master\",
                 \"name\": \"$tag_name\",
@@ -20,7 +20,7 @@ function gh_release {
     local filename=$2
     # Script to upload a release asset using the GitHub API v3.
     # Define variables.
-    local githubAPIToken="32b9bcad8a5dd901a7c54cb038baefbafa929d21"
+    local githubAPIToken="29a1b2fb32f1208aa9790e21fe51c059467f32c6"
     local GH_API="https://api.github.com"
     local GH_REPO="$GH_API/repos/Glovo/glovo-courier-android"
     local GH_TAGS="$GH_REPO/releases/tags/${next_version}"
