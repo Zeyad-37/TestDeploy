@@ -4,6 +4,8 @@ function gh_create_release() {
     tag_name=$1
     body=$2
     githubAPIToken=$3
+    echo token= ${githubAPIToken}
+
     API_JSON="{\"tag_name\": \"$tag_name\",
                 \"target_commitish\": \"master\",
                 \"name\": \"$tag_name\",
