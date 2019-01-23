@@ -4,6 +4,8 @@ function gh_create_release {
     tag_name=$1
     body=$2
     githubAPIToken=$3
+    echo name= $tag_name
+    echo body= $body
     echo third= $3
     echo token= ${githubAPIToken}
 
@@ -199,9 +201,7 @@ echo "Pushed develop, master and tag to origin"
 
 # Make Release for Github
 releaseNotes="Testing this shit"
-echo token= $2
-echo token= $2
-gh_create_release ${current_version} ${releaseNotes} $2
+gh_create_release ${current_version} "${releaseNotes}" $2
 
 # Upload Release asset
 file=$(find app/build/outputs/apk/release -name '*.apk' -print0 |
