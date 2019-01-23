@@ -4,10 +4,6 @@ function gh_create_release {
     tag_name=$1
     body=$2
     githubAPIToken=$3
-    echo name= $tag_name
-    echo body= $body
-    echo third= $3
-    echo token= ${githubAPIToken}
 
     API_JSON="{\"tag_name\": \"$tag_name\",
                 \"target_commitish\": \"master\",
@@ -17,7 +13,7 @@ function gh_create_release {
                 \"prerelease\": false
               }"
 
-    curl --data "$API_JSON" https://api.github.com/repos/Glovo/glovo-courier-android/releases?access_token=${githubAPIToken}
+    curl --data "$API_JSON" https://api.github.com/repos/Zeyad-37/TestDeploy/releases?access_token=${githubAPIToken}
 }
 
 function gh_release {
@@ -27,7 +23,7 @@ function gh_release {
     # Define variables.
     local githubAPIToken=$3
     local GH_API="https://api.github.com"
-    local GH_REPO="$GH_API/repos/Glovo/glovo-courier-android"
+    local GH_REPO="$GH_API/repos/Zeyad-37/TestDeploy"
     local GH_TAGS="$GH_REPO/releases/tags/${next_version}"
     local AUTH="Authorization: token $githubAPIToken"
 #    local WGET_ARGS="--content-disposition --auth-no-challenge --no-cookie"
@@ -51,7 +47,7 @@ function gh_release {
     echo "Uploading asset... "
 
     # Construct url
-    GH_ASSET="https://uploads.github.com/repos/Glovo/glovo-courier-android/releases/$id/assets?name=$(basename ${filename})"
+    GH_ASSET="https://uploads.github.com/repos/Zeyad-37/TestDeploy/releases/$id/assets?name=$(basename ${filename})"
 
     curl --data-binary @"$filename" -H "Authorization: token $githubAPIToken" -H "Content-Type: application/octet-stream" ${GH_ASSET}
 }
@@ -200,7 +196,7 @@ echo "Pushed develop, master and tag to origin"
 ./gradlew assembleRelease
 
 # Make Release for Github
-releaseNotes="Testing this shit"
+releaseNotes=$(cat release_notes.txt)
 gh_create_release ${next_version} "${releaseNotes}" $2
 
 # Upload Release asset
