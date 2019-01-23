@@ -3,7 +3,7 @@
 function gh_create_release() {
     tag_name=$1
     body=$2
-    githubAPIToken="29a1b2fb32f1208aa9790e21fe51c059467f32c6"
+    githubAPIToken=$3
     API_JSON="{\"tag_name\": \"$tag_name\",
                 \"target_commitish\": \"master\",
                 \"name\": \"$tag_name\",
@@ -20,7 +20,7 @@ function gh_release {
     local filename=$2
     # Script to upload a release asset using the GitHub API v3.
     # Define variables.
-    local githubAPIToken="29a1b2fb32f1208aa9790e21fe51c059467f32c6"
+    local githubAPIToken=$3
     local GH_API="https://api.github.com"
     local GH_REPO="$GH_API/repos/Glovo/glovo-courier-android"
     local GH_TAGS="$GH_REPO/releases/tags/${next_version}"
@@ -196,10 +196,10 @@ echo "Pushed develop, master and tag to origin"
 
 # Make Release for Github
 releaseNotes="Testing this shit"
-gh_create_release ${current_version} ${releaseNotes}
+gh_create_release ${current_version} ${releaseNotes} $3
 
 # Upload Release asset
 file=$(find app/build/outputs/apk/release -name '*.apk' -print0 |
             xargs -0 ls -1 -t |
             head -1)
-gh_release ${next_version} ${file}
+gh_release ${next_version} ${file} $3
