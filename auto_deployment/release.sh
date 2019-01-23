@@ -196,7 +196,7 @@ echo "Pushed develop, master and tag to origin"
 ./gradlew assembleRelease
 
 # Make Release for Github
-releaseNotes=$(cat release_notes.txt)
+releaseNotes=$(cat ./auto_deployment/release_notes.txt)
 gh_create_release ${next_version} "${releaseNotes}" $2
 
 # Upload Release asset
