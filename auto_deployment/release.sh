@@ -131,12 +131,18 @@ touch ./auto_deployment/release_notes.txt
 
 if [[ -s ./auto_deployment/release_notes.txt ]]
 then
-    if [[ $(find /path -mtime -1 -type f -name ./auto_deployment/release_notes.txt 2>/dev/null) ]];then
-            echo 'Please fill the release notes, you can fill them at ./auto_deployment/release_notes.txt'
-            exit 0
-    fi
+    echo 'Release notes are empty, you can fill them at ./auto_deployment/release_notes.txt'
+    exit 0
 fi
 
+echo 'Release notes not empty'
+
+if [[ $(find /path -mtime -1 -type f -name ./auto_deployment/release_notes.txt 2>/dev/null) ]];then
+    echo 'Release notes are stale, you can update them at ./auto_deployment/release_notes.txt'
+    exit 0
+fi
+
+echo 'Release notes not stale, beginning release '
 
 # ensure you are on latest develop & master
 git checkout master
