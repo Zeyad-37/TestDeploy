@@ -131,7 +131,7 @@ touch ./auto_deployment/release_notes.txt
 
 if [[ -s ./auto_deployment/release_notes.txt ]]
 then
-    echo 'Please fill the release notes, you can fill them at ./auto_deployment/release_notes.txt'
+    echo 'Release notes are empty, you can fill them at ./auto_deployment/release_notes.txt'
     exit 0
 fi
 
