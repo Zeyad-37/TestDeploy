@@ -4,7 +4,6 @@ function gh_create_release {
     tag_name=$1
     body=$2
     jbody="${body//$'\n'/\n}"
-#    jbody="'"${body//$'\n'/'\n'}"'"
     githubAPIToken=$3
     echo ${jbody}
     API_JSON="{\"tag_name\": \"$tag_name\",
@@ -126,6 +125,18 @@ increment_version() {
 
    return 0
 }
+
+mkdir -p ./auto_deployment
+touch ./auto_deployment/release_notes.txt
+
+if [[ -s ./auto_deployment/release_notes.txt ]]
+then
+    if [[ $(find /path -mtime -1 -type f -name ./auto_deployment/release_notes.txt 2>/dev/null) ]];then
+            echo 'Please fill the release notes, you can fill them at ./auto_deployment/release_notes.txt'
+            exit 0
+    fi
+fi
+
 
 # ensure you are on latest develop & master
 git checkout master
