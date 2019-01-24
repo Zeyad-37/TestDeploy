@@ -9,3 +9,4 @@
 /build
 /captures
 .externalNativeBuild
+/auto_deployment/release_notes.txt
