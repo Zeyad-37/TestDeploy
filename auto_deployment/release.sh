@@ -224,3 +224,6 @@ file=$(find app/build/outputs/apk/release -name '*.apk' -print0 |
             xargs -0 ls -1 -t |
             head -1)
 gh_release ${next_version} ${file} $2
+
+# Empty release_notes.txt
+> ./auto_deployment/release_notes.txt
