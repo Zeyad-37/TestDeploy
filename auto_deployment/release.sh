@@ -126,23 +126,24 @@ increment_version() {
    return 0
 }
 
-mkdir -p ./auto_deployment
-touch ./auto_deployment/release_notes.txt
+if [[ ! -e ./auto_deployment/release_notes.txt ]]; then
+    touch ./auto_deployment/release_notes.txt
+fi
 
-if [[ -s ./auto_deployment/release_notes.txt ]]
+if ! [[ -s ./auto_deployment/release_notes.txt ]]
 then
-    echo 'Release notes are empty, you can fill them at ./auto_deployment/release_notes.txt'
-    exit 0
+    echo 'Release Notes are empty, you can fill them at ./auto_deployment/release_notes.txt'
+    exit 1
 fi
 
-echo 'Release notes not empty'
+echo 'Release Notes not empty'
 
-if [[ $(find /path -mtime -1 -type f -name ./auto_deployment/release_notes.txt 2>/dev/null) ]];then
-    echo 'Release notes are stale, you can update them at ./auto_deployment/release_notes.txt'
-    exit 0
+if [[ $(find ./auto_deployment -mtime -1 -type f -name /release_notes.txt 2>/dev/null) ]];then
+    echo 'Release Notes are stale, you can update them at ./auto_deployment/release_notes.txt'
+    exit 1
 fi
 
-echo 'Release notes not stale, beginning release '
+echo 'Release Notes not stale, beginning release'
 
 # ensure you are on latest develop & master
 git checkout master
@@ -223,3 +224,6 @@ file=$(find app/build/outputs/apk/release -name '*.apk' -print0 |
             xargs -0 ls -1 -t |
             head -1)
 gh_release ${next_version} ${file} $2
+
+# Empty release_notes.txt
+> ./auto_deployment/release_notes.txt
