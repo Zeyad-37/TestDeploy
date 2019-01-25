@@ -141,14 +141,14 @@ echo 'Release Notes not empty'
 tags=$(git tag --contains $(git log -n 1 --pretty=format:%H -- auto_deployment/release_notes.txt))
 arr=(${tags})
 len=${#arr[@]}
-index=${len}-1
-releaseNotesTag=${arr[${index}]}
-
-currentTag=$(git describe --tags $(git rev-list --tags --max-count=1))
-
-if [[ ${currentTag} == ${releaseNotesTag} ]];then
-    echo 'Release Notes are stale, you can update them at ./auto_deployment/release_notes.txt'
-    exit 1
+if [[ ${len} > 0 ]];then
+    index=${len}-1
+    releaseNotesTag=${arr[${index}]}
+    currentTag=$(git describe --tags $(git rev-list --tags --max-count=1))
+    if [[ ${currentTag} == ${releaseNotesTag} ]];then
+        echo 'Release Notes are stale, you can update them at ./auto_deployment/release_notes.txt'
+        exit 1
+    fi
 fi
 
 echo 'Release Notes not stale, beginning release'
