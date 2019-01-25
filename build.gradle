@@ -27,9 +27,13 @@ task clean(type: Delete) {
 }
 
 task autoRelease(type:Exec) {
-    commandLine "./auto_deployment/release.sh"
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    commandLine "./auto_deployment/release.sh", 2, properties.getProperty('githubAPIToken')
 }
 
 task autoHotfix(type:Exec) {
-    commandLine "./auto_deployment/release.sh", 3
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    commandLine "./auto_deployment/release.sh", 3, properties.getProperty('githubAPIToken')
 }

@@ -138,7 +138,7 @@ fi
 
 echo 'Release Notes not empty'
 
-tags=$(git log -n 1 --pretty=format:%H -- auto_deployment/release_notes.txt  | git tag --contains)
+tags=$(git log -n 1 --pretty=format:%H -- auto_deployment/release_notes.txt | git tag --contains)
 arr=(${tags})
 len=${#arr[@]}
 if [[ ${len} > 0 ]];then
