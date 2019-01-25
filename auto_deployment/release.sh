@@ -138,7 +138,7 @@ fi
 
 echo 'Release Notes not empty'
 
-tags=$(git tag --contains $(git log -n 1 --pretty=format:%H -- auto_deployment/release_notes.txt))
+tags=$(git log -n 1 --pretty=format:%H -- auto_deployment/release_notes.txt  | git tag --contains)
 arr=(${tags})
 len=${#arr[@]}
 if [[ ${len} > 0 ]];then
@@ -232,6 +232,3 @@ file=$(find app/build/outputs/apk/release -name '*.apk' -print0 |
             xargs -0 ls -1 -t |
             head -1)
 gh_release ${next_version} ${file} $2
-
-# Empty release_notes.txt
-> ./auto_deployment/release_notes.txt
