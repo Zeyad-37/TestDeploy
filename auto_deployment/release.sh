@@ -126,32 +126,49 @@ increment_version() {
    return 0
 }
 
-if [[ ! -e ./auto_deployment/release_notes.txt ]]; then
-    touch ./auto_deployment/release_notes.txt
-fi
+function checkFileValidity() {
+    file=$1
+    if [[ ! -e ${file} ]]; then
+        touch ${file}
+    fi
 
-if ! [[ -s ./auto_deployment/release_notes.txt ]]
+    if ! [[ -s ${file} ]]
+    then
+        echo 'Release Notes are empty, you can fill them at '${file}
+        exit 1
+    fi
+
+    tags=$(git log -n 1 --pretty=format:%H -- ${file} | git tag --contains)
+    arr=(${tags})
+    len=${#arr[@]}
+    if [[ ${len} > 0 ]];then
+        index=${len}-1
+        release_notes_tag=${arr[${index}]}
+        current_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
+        if [[ ${current_tag} == ${release_notes_tag} ]];then
+            echo 'Release Notes are stale, you can update them at '${file}
+            exit 1
+        fi
+    fi
+
+    echo 'Release Notes seem valid, beginning the release process'
+}
+
+release_type=$1
+if [[ release_type > "4" || release_type < 1 ]]
 then
-    echo 'Release Notes are empty, you can fill them at ./auto_deployment/release_notes.txt'
+    echo 'Unsupported Release type: ' ${release_type}
     exit 1
 fi
 
-echo 'Release Notes not empty'
-
-tags=$(git log -n 1 --pretty=format:%H -- auto_deployment/release_notes.txt | git tag --contains)
-arr=(${tags})
-len=${#arr[@]}
-if [[ ${len} > 0 ]];then
-    index=${len}-1
-    releaseNotesTag=${arr[${index}]}
-    currentTag=$(git describe --tags $(git rev-list --tags --max-count=1))
-    if [[ ${currentTag} == ${releaseNotesTag} ]];then
-        echo 'Release Notes are stale, you can update them at ./auto_deployment/release_notes.txt'
-        exit 1
-    fi
+bump_location=${release_type}
+if [[ release_type == "4" ]]
+then
+    bump_location=3
 fi
 
-echo 'Release Notes not stale, beginning release'
+checkFileValidity ./auto_deployment/release_notes.txt
+checkFileValidity ./auto_deployment/tech_release_notes.txt
 
 # ensure you are on latest develop & master
 git checkout master
@@ -162,42 +179,34 @@ echo "Got latest of develop and master"
 
 # Read Version -
 current_version=$(git describe --tags $(git rev-list --tags --max-count=1))
-
 echo Current version ${current_version}
-
-bumpLocation=$1
-if [[ -z "$1" ]]
-then
-    bumpLocation=2
-fi
-
 # Bump released version
-next_version=$(increment_version ${current_version} ${bumpLocation})
+next_version=$(increment_version ${current_version} ${bump_location})
 echo "Releasing new version ${next_version}"
 
-branchPrefix='release'
-sourceBranch='develop'
+branch_prefix='release'
+source_branch='develop'
 # Start Release
-if [[ "$bumpLocation" == "3" ]]; then
-    branchPrefix='hotfix'
-    sourceBranch='master'
+if [[ "$release_type" == "4" ]]; then
+    branch_prefix='hotfix'
+    source_branch='master'
 fi
 
-branchName=${branchPrefix}/${next_version}
+branch_name=${branch_prefix}/${next_version}
 
-echo branchName= ${branchName}
+echo "branch_name=${branch_name}"
 
-git checkout -b ${branchName} ${sourceBranch}
-echo "Created ${branchPrefix} branch '${branchName}'"
+git checkout -b ${branch_name} ${source_branch}
+echo "Created ${branch_prefix} branch '${branch_name}'"
 
 # Bump in gradle file
-oldGradleVersion=$(format_to_gradle ${current_version})
-newGradleVersion=$(format_to_gradle ${next_version})
+old_gradle_version=$(format_to_gradle ${current_version})
+new_gradle_version=$(format_to_gradle ${next_version})
 
-echo oldGradleVersion= ${oldGradleVersion}
-echo newGradleVersion= ${newGradleVersion}
+echo "old_gradle_version= ${old_gradle_version}"
+echo "new_gradle_version= ${new_gradle_version}"
 
-sed -i '' -e "s/${oldGradleVersion}/${newGradleVersion}/g" ./app/build.gradle
+sed -i '' -e "s/${old_gradle_version}/${new_gradle_version}/g" ./app/build.gradle
 
 # Commit
 git add app/build.gradle
@@ -206,14 +215,14 @@ echo "Bumped version in app build.gradle file to ${next_version}"
 
 # Merge to master and develop
 git checkout master
-git merge --no-ff --no-edit ${branchName}
-git tag -a ${next_version} -m "${next_version} this is the tag body"
+git merge --no-ff --no-edit ${branch_name}
+git tag -a ${next_version} -m "${next_version}"
 git checkout develop
-git merge --no-ff --no-edit ${branchName}
+git merge --no-ff --no-edit ${branch_name}
 echo "Merged to master and develop and created tag"
 # Delete branch
-git branch -d ${branchName}
-echo "Deleted ${branchPrefix} branch '${branchName}'"
+git branch -d ${branch_name}
+echo "Deleted ${branch_prefix} branch '${branch_name}'"
 # Push develop, master and tag to origin
 git push origin develop
 git push origin master
@@ -224,8 +233,9 @@ echo "Pushed develop, master and tag to origin"
 ./gradlew assembleRelease
 
 # Make Release for Github
-releaseNotes=$(cat ./auto_deployment/release_notes.txt)
-gh_create_release ${next_version} "${releaseNotes}" $2
+
+tech_release_notes=$(cat ./auto_deployment/tech_release_notes.txt)
+gh_create_release ${next_version} "${tech_release_notes}" $2
 
 # Upload Release asset
 file=$(find app/build/outputs/apk/release -name '*.apk' -print0 |
