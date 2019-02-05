@@ -155,7 +155,7 @@ function checkFileValidity() {
 }
 
 release_type=$1
-if [[ release_type > "4" || release_type < 1 ]]
+if [[ release_type -gt "4" || release_type -lt "1" ]]
 then
     echo 'Unsupported Release type: ' ${release_type}
     exit 1
