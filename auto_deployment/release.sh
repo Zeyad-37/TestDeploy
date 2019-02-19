@@ -3,54 +3,18 @@
 function gh_create_release {
     tag_name=$1
     body=$2
-    jbody="${body//$'\n'/\n}"
-    githubAPIToken=$3
-    echo ${jbody}
-    API_JSON="{\"tag_name\": \"$tag_name\",
+    j_body="${body//$'\n'/\n}"
+    github_api_token=$3
+    json="{\"tag_name\": \"$tag_name\",
                 \"target_commitish\": \"master\",
                 \"name\": \"$tag_name\",
-                \"body\": \"$jbody\",
+                \"body\": \"$j_body\",
                 \"draft\": false,
                 \"prerelease\": false
               }"
-    echo ${API_JSON}
-    curl --data "$API_JSON" https://api.github.com/repos/Zeyad-37/TestDeploy/releases?access_token=${githubAPIToken}
-}
+    echo "Creating a Github Release"
 
-function gh_release {
-    local next_version=$1
-    local filename=$2
-    # Script to upload a release asset using the GitHub API v3.
-    # Define variables.
-    local githubAPIToken=$3
-    local GH_API="https://api.github.com"
-    local GH_REPO="$GH_API/repos/Zeyad-37/TestDeploy"
-    local GH_TAGS="$GH_REPO/releases/tags/${next_version}"
-    local AUTH="Authorization: token $githubAPIToken"
-#    local WGET_ARGS="--content-disposition --auth-no-challenge --no-cookie"
-    local CURL_ARGS="-LJO#"
-
-    if [[ "${next_version}" == 'LATEST' ]]; then
-      GH_TAGS="$GH_REPO/releases/latest"
-    fi
-
-    # Validate token.
-    curl -o /dev/null -sH "$AUTH" ${GH_REPO} || { echo "Error: Invalid repo, token or network issue!";  exit 1; }
-
-    # Read asset tags.
-    response=$(curl -sH "$AUTH" ${GH_TAGS})
-
-    # Get ID of the asset based on given filename.
-    eval $(echo "$response" | grep -m 1 "id.:" | grep -w id | tr : = | tr -cd '[[:alnum:]]=')
-    [[ "$id" ]] || { echo "Error: Failed to get release id for tag: ${next_version}"; echo "$response" | awk 'length($0)<100' >&2; exit 1; }
-
-    # Upload asset
-    echo "Uploading asset... "
-
-    # Construct url
-    GH_ASSET="https://uploads.github.com/repos/Zeyad-37/TestDeploy/releases/$id/assets?name=$(basename ${filename})"
-
-    curl --data-binary @"$filename" -H "Authorization: token $githubAPIToken" -H "Content-Type: application/octet-stream" ${GH_ASSET}
+    curl --data "$json" https://api.github.com/repos/Glovo/glovo-courier-android/releases?access_token=${github_api_token}
 }
 
 function format_to_gradle {
@@ -64,7 +28,7 @@ function format_to_gradle {
 
 # Accepts a version string and prints it incremented by one.
 # Usage: increment_version <version> [<position>] [<leftmost>]
-increment_version() {
+function increment_version() {
    local usage=" USAGE: $FUNCNAME [-l] [-t] <version> [<position>] [<leftmost>]
            -l : remove leading zeros
            -t : drop trailing zeros
@@ -88,26 +52,26 @@ increment_version() {
    # Get arguments.
    if [[ ${#@} -lt 1 ]]; then echo "$usage"; return 1; fi
    local v="${1}"             # version string
-   local targetPos=${2-last}  # target position
-   local minPos=${3-${2-0}}   # minimum position
+   local target_pos=${2-last}  # target position
+   local min_pos=${3-${2-0}}   # minimum position
 
    # Split version string into array using its periods.
    local IFSbak; IFSbak=IFS; IFS='.' # IFS restored at end of func to
    read -ra v <<< "$v"               #  avoid breaking other scripts.
 
    # Determine target position.
-   if [[ "${targetPos}" == "last" ]]; then
-      if [[ "${minPos}" == "last" ]]; then minPos=0; fi
-      targetPos=$((${#v[@]}>${minPos}?${#v[@]}:$minPos)); fi
-   if [[ ! ${targetPos} -gt 0 ]]; then
-      echo -e "Invalid position: '$targetPos'\n$usage"; return 1; fi
-   (( targetPos--  )) || true # offset to match array index
+   if [[ "${target_pos}" == "last" ]]; then
+      if [[ "${min_pos}" == "last" ]]; then min_pos=0; fi
+      target_pos=$((${#v[@]}>${min_pos}?${#v[@]}:$min_pos)); fi
+   if [[ ! ${target_pos} -gt 0 ]]; then
+      echo -e "Invalid position: '$target_pos'\n$usage"; return 1; fi
+   (( target_pos--  )) || true # offset to match array index
 
    # Make sure minPosition exists.
-   while [[ ${#v[@]} -lt ${minPos} ]]; do v+=("0"); done;
+   while [[ ${#v[@]} -lt ${min_pos} ]]; do v+=("0"); done;
 
    # Increment target position.
-   v[$targetPos]=`printf %0${#v[$targetPos]}d $((10#${v[$targetPos]}+1))`;
+   v[$target_pos]=`printf %0${#v[$target_pos]}d $((10#${v[$target_pos]}+1))`;
 
    # Remove leading zeros, if -l flag passed.
    if [[ ${flag_remove_leading_zeros} == 1 ]]; then
@@ -117,8 +81,8 @@ increment_version() {
    # If targetPosition was not at end of array, reset following positions to
    #   zero (or remove them if -t flag was passed).
    if [[ ${flag_drop_trailing_zeros} -eq "1" ]]; then
-        for (( p=$((${#v[@]}-1)); $p>$targetPos; p-- )); do unset v[$p]; done
-   else for (( p=$((${#v[@]}-1)); $p>$targetPos; p-- )); do v[$p]=0; done; fi
+        for (( p=$((${#v[@]}-1)); $p>$target_pos; p-- )); do unset v[$p]; done
+   else for (( p=$((${#v[@]}-1)); $p>$target_pos; p-- )); do v[$p]=0; done; fi
 
    echo "${v[*]}"
    IFS=IFSbak
@@ -175,6 +139,7 @@ git checkout master
 git pull origin master
 git checkout develop
 git pull origin develop
+git fetch --tags
 echo "Got latest of develop and master"
 
 # Read Version -
@@ -196,9 +161,6 @@ branch_name=${branch_prefix}/${next_version}
 
 echo "branch_name=${branch_name}"
 
-git checkout -b ${branch_name} ${source_branch}
-echo "Created ${branch_prefix} branch '${branch_name}'"
-
 # Bump in gradle file
 old_gradle_version=$(format_to_gradle ${current_version})
 new_gradle_version=$(format_to_gradle ${next_version})
@@ -206,7 +168,12 @@ new_gradle_version=$(format_to_gradle ${next_version})
 echo "old_gradle_version= ${old_gradle_version}"
 echo "new_gradle_version= ${new_gradle_version}"
 
-sed -i '' -e "s/${old_gradle_version}/${new_gradle_version}/g" ./app/build.gradle
+if grep -q "${old_gradle_version}" ./app/build.gradle; then
+    git checkout -b ${branch_name} ${source_branch}
+    echo "Created ${branch_prefix} branch '${branch_name}'"
+  sed -i '' -e "s/${old_gradle_version}/${new_gradle_version}/g" ./app/build.gradle
+else echo "something wrong with ur tags"; exit 1
+fi
 
 # Commit
 git add app/build.gradle
@@ -229,16 +196,6 @@ git push origin master
 git push origin ${next_version}
 echo "Pushed develop, master and tag to origin"
 
-# Build APK
-./gradlew assembleRelease
-
 # Make Release for Github
-
 tech_release_notes=$(cat ./auto_deployment/tech_release_notes.txt)
 gh_create_release ${next_version} "${tech_release_notes}" $2
-
-# Upload Release asset
-file=$(find app/build/outputs/apk/release -name '*.apk' -print0 |
-            xargs -0 ls -1 -t |
-            head -1)
-gh_release ${next_version} ${file} $2
